@@ -2077,6 +2077,31 @@ def _basis_residual_for_rows(rows: list[dict[str, float | str]], basis_u: np.nda
     return float(np.median(np.linalg.norm(uv - np.round(uv), axis=1)))
 
 
+def _basis_lengths(basis_u: np.ndarray, basis_v: np.ndarray) -> tuple[float, float]:
+    return float(np.linalg.norm(basis_u)), float(np.linalg.norm(basis_v))
+
+
+def _candidate_is_long_alias_of_spatial_basis(
+    spatial_u: np.ndarray,
+    spatial_v: np.ndarray,
+    candidate_u: np.ndarray,
+    candidate_v: np.ndarray,
+    spatial_residual: float,
+) -> bool:
+    if spatial_residual > 0.10:
+        return False
+    su, sv = _basis_lengths(spatial_u, spatial_v)
+    cu, cv = _basis_lengths(candidate_u, candidate_v)
+    if su <= 0.0 or sv <= 0.0 or cu <= 0.0 or cv <= 0.0:
+        return False
+    spatial_min, spatial_max = min(su, sv), max(su, sv)
+    candidate_min, candidate_max = min(cu, cv), max(cu, cv)
+    spatial_ratio = spatial_max / max(spatial_min, 1e-6)
+    if spatial_ratio > 1.35:
+        return False
+    return bool(candidate_min >= 0.75 * spatial_min and candidate_max > 1.35 * spatial_max)
+
+
 def _estimate_consensus_probe_basis(accepted_rows: list[dict[str, float | str]], evidence: dict[str, np.ndarray], wafer_mask: np.ndarray):
     spatial = _estimate_probe_basis(accepted_rows)
     fourier = _autocorrelation_lattice_basis(evidence, wafer_mask, accepted_rows)
@@ -2092,7 +2117,11 @@ def _estimate_consensus_probe_basis(accepted_rows: list[dict[str, float | str]],
             _xy, su, sv, so = spatial
             spatial_residual = _basis_residual_for_rows(accepted_rows, su, sv, so)
             global_residual = _basis_residual_for_rows(accepted_rows, gu, gv, go)
-            if gconf >= 0.30 and (global_residual <= spatial_residual + 0.05 or spatial_residual > 0.18):
+            if (
+                gconf >= 0.30
+                and not _candidate_is_long_alias_of_spatial_basis(su, sv, gu, gv, spatial_residual)
+                and (global_residual <= spatial_residual + 0.05 or spatial_residual > 0.18)
+            ):
                 return _gpts, gu, gv, go
         if float(np.mean(wafer_mask)) > 0.985:
             xy, su, sv, so = spatial
@@ -2101,12 +2130,14 @@ def _estimate_consensus_probe_basis(accepted_rows: list[dict[str, float | str]],
         return spatial
     pts = np.asarray([[float(row['x']), float(row['y'])] for row in accepted_rows], dtype=np.float32)
     _xy, su, sv, so = spatial
+    spatial_residual_raw = _basis_residual_for_rows(accepted_rows, su, sv, so)
     if float(np.mean(wafer_mask)) > 0.985:
         so = _refine_lattice_origin_by_phase(evidence, wafer_mask, su, sv, so)
     B = np.column_stack([su, sv]).astype(np.float32)
     inv = np.linalg.pinv(B)
     uv = (pts - so) @ inv.T
     spatial_residual = float(np.median(np.linalg.norm(uv - np.round(uv), axis=1)))
+    spatial_alias_residual = min(float(spatial_residual_raw), float(spatial_residual))
     _fpts, fu, fv, fo, fconf = fourier
     Bf = np.column_stack([fu, fv]).astype(np.float32)
     invf = np.linalg.pinv(Bf)
@@ -2115,11 +2146,16 @@ def _estimate_consensus_probe_basis(accepted_rows: list[dict[str, float | str]],
     if global_fourier is not None:
         _gpts, gu, gv, go, gconf = global_fourier
         global_residual = _basis_residual_for_rows(accepted_rows, gu, gv, go)
-        if gconf >= 0.30 and (global_residual <= min(spatial_residual, fourier_residual) + 0.05 or spatial_residual > 0.18):
+        if (
+            gconf >= 0.30
+            and not _candidate_is_long_alias_of_spatial_basis(su, sv, gu, gv, spatial_alias_residual)
+            and (global_residual <= min(spatial_residual, fourier_residual) + 0.05 or spatial_residual > 0.18)
+        ):
             return _gpts, gu, gv, go
-    if float(np.mean(wafer_mask)) > 0.985 and fconf >= 0.35:
+    fourier_alias = _candidate_is_long_alias_of_spatial_basis(su, sv, fu, fv, spatial_alias_residual)
+    if float(np.mean(wafer_mask)) > 0.985 and fconf >= 0.35 and not fourier_alias:
         return pts, fu, fv, fo
-    if fconf >= 0.35 and (fourier_residual <= spatial_residual + 0.025 or spatial_residual > 0.14):
+    if fconf >= 0.35 and not fourier_alias and (fourier_residual <= spatial_residual + 0.025 or spatial_residual > 0.14):
         return pts, fu, fv, fo
     return spatial
 

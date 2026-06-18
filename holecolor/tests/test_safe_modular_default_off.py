@@ -23,5 +23,9 @@ def test_safe_modular_extensions_default_off_does_not_emit_new_branch(tmp_path: 
     out_dir = tmp_path / 'default_off_run'
     summary = run_milestone24(frames, out_dir, cfg, hole_grid_bundle=bundle)
     assert summary['n_frames'] == 3
+    assert (out_dir / 'geometry' / 'hole_geometry_detected.csv').exists()
+    assert (out_dir / 'geometry' / 'hole_geometry_selected.csv').exists()
+    assert (out_dir / 'geometry' / 'overlays' / 'frame_ref_detected_geometry_overlay.png').exists()
+    assert (out_dir / 'geometry' / 'overlays' / 'frame_ref_selected_geometry_overlay.png').exists()
     assert (out_dir / 'descriptors' / 'hole_compartment_timeseries.csv').exists()
     assert (out_dir / 'descriptors' / 'wafer_nonhole_colour' / 'stage_status.json').exists()

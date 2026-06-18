@@ -2514,12 +2514,22 @@ def run_milestone18(frames: list[FrameRecord], out_dir: Path, cfg: PipelineConfi
             }
             write_json(geometry_dir / "geometry_sanity_checks.json", geometry_sanity)
             tracker.progress(30, geometry_progress_total, message="Skipping automatic geometry detection")
+        detected_candidates = list(candidates)
+        detected_ref_holes = list(ref_holes)
+        detected_lattice_indices = dict(lattice_indices)
+        write_table(geometry_dir / "hole_candidates_detected.csv", _candidate_table(detected_candidates, detected_lattice_indices))
+        write_table(geometry_dir / "hole_geometry_detected.csv", detected_ref_holes)
+        write_table(geometry_dir / "hole_lattice_index_detected.csv", _make_hole_lattice_rows(detected_ref_holes, detected_lattice_indices))
+        write_json(geometry_dir / "lattice_model.json", asdict(lattice))
+        detected_overlay = draw_candidates(ref_frame.image, detected_candidates, lattice=lattice, lattice_indices=detected_lattice_indices, support_circle=support_circle_runtime)
+        save_image(geometry_dir / "overlays" / "frame_ref_geometry_overlay.png", detected_overlay)
+        save_image(geometry_dir / "overlays" / "frame_ref_detected_geometry_overlay.png", detected_overlay)
         tracker.progress(31, geometry_progress_total, message="Excluding partial holes and terraces")
         reference_support_mask = support_mask_from_debug(ref_frame.image.shape[:2], support_mask_runtime, support_circle_runtime)
         complete_filter = filter_complete_holes_and_terraces(
-            ref_holes,
-            candidates,
-            lattice_indices,
+            detected_ref_holes,
+            detected_candidates,
+            detected_lattice_indices,
             ref_frame.image.shape[:2],
             n_terraces=cfg.masks.n_terraces,
             terrace_width_mode=cfg.masks.terrace_width_mode,
@@ -2558,13 +2568,15 @@ def run_milestone18(frames: list[FrameRecord], out_dir: Path, cfg: PipelineConfi
                 "No complete holes remain after requiring hole and terrace disks to stay inside the wafer and video frame. "
                 f"See {geometry_dir / 'hole_terrace_exclusion.csv'}."
             )
-        tracker.progress(32, geometry_progress_total, message="Writing geometry artifacts")
+        tracker.progress(32, geometry_progress_total, message="Writing selected geometry artifacts")
         write_table(geometry_dir / "hole_candidates.csv", _candidate_table(candidates, lattice_indices))
+        write_table(geometry_dir / "hole_candidates_selected.csv", _candidate_table(candidates, lattice_indices))
         write_table(geometry_dir / "hole_geometry.csv", ref_holes)
+        write_table(geometry_dir / "hole_geometry_selected.csv", ref_holes)
         write_table(geometry_dir / "hole_lattice_index.csv", _make_hole_lattice_rows(ref_holes, lattice_indices))
-        write_json(geometry_dir / "lattice_model.json", asdict(lattice))
-        overlay = draw_candidates(ref_frame.image, candidates, lattice=lattice, lattice_indices=lattice_indices, support_circle=support_circle_runtime)
-        save_image(geometry_dir / "overlays" / "frame_ref_geometry_overlay.png", overlay)
+        write_table(geometry_dir / "hole_lattice_index_selected.csv", _make_hole_lattice_rows(ref_holes, lattice_indices))
+        selected_overlay = draw_candidates(ref_frame.image, candidates, lattice=lattice, lattice_indices=lattice_indices, support_circle=support_circle_runtime)
+        save_image(geometry_dir / "overlays" / "frame_ref_selected_geometry_overlay.png", selected_overlay)
         tracker.progress(34, geometry_progress_total, message="Reference geometry complete")
 
     with pipeline_progress.stage("Descriptor selection", total=3, message="Selecting the primary descriptor for the run") as tracker:

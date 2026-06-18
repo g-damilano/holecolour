@@ -13,6 +13,7 @@ from holecolor.geometry.candidates import detect_stable_grid_hole_candidates
 from holecolor.geometry.exact_sequence import (
     _background_boundary_circle_candidates,
     _background_similarity_map,
+    _candidate_is_long_alias_of_spatial_basis,
     _circle_background_transition_score,
     _circle_mask,
     _DetectorWatchdog,
@@ -281,6 +282,16 @@ def test_milestone53_geometry_sanity_allows_dense_full_frame_support():
     full_frame_check = next(c for c in sanity["checks"] if c["name"] == "full_frame_support_hole_count")
     assert full_frame_check["severity"] == "warn"
     assert full_frame_check["passed"] is False
+
+
+def test_milestone53_lattice_consensus_rejects_long_alias_of_primitive_basis():
+    spatial_u = np.asarray([34.75, 303.01], dtype=np.float32)
+    spatial_v = np.asarray([-247.99, 185.21], dtype=np.float32)
+    alias_u = np.asarray([-21.80, -296.90], dtype=np.float32)
+    alias_v = np.asarray([486.27, -81.41], dtype=np.float32)
+
+    assert _candidate_is_long_alias_of_spatial_basis(spatial_u, spatial_v, alias_u, alias_v, 0.034)
+    assert not _candidate_is_long_alias_of_spatial_basis(spatial_u, spatial_v, alias_u, alias_v, 0.18)
 
 
 def test_milestone53_wafer_circle_score_rejects_background_swallowing_circle():
