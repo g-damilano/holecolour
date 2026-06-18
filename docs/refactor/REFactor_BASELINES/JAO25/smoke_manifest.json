@@ -1,0 +1,6 @@
+{
+  "dataset": "JAO25",
+  "status": "frozen",
+  "baseline_summary": "baseline_summary.json",
+  "generated_from_known_probe_outputs": true
+}

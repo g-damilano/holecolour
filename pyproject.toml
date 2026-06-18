@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "holecolor"
+version = "0.48.0"
+description = "Colour and spatial-colour time-series analysis around regular hole lattices"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=1.26",
+  "scipy>=1.11",
+  "pandas>=2.1",
+  "matplotlib>=3.8",
+  "opencv-python>=4.10",
+  "scikit-learn>=1.4",
+  "scikit-image>=0.22",
+  "imageio>=2.34",
+  "pydantic>=2.8",
+  "PyWavelets>=1.6",
+  "tqdm>=4.66",
+  "numba>=0.59"
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.2", "mypy>=1.10", "ruff>=0.5"]
+
+[project.scripts]
+holecolor = "holecolor.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["holecolor*"]

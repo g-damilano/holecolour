@@ -1,0 +1,1 @@
+Sector RDF evolution/frame-summary artifacts now emit directly from columnar payloads for CSV writing and plot preparation, reducing row-dict expansion on the artifact boundary. Validation summary JSON assembly already reuses internal validation tables rather than rebuilding adjacent joins from row buckets.

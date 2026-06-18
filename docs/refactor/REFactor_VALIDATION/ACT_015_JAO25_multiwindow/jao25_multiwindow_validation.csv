@@ -1,0 +1,7 @@
+window_index,frame_start,frame_end,window_size,wafer_radius_px,buffer_state,buffer_radius_px,buffer_confidence,buffer_center_outside_frame,buffer_detection_mode,canonical_holes_total,selected_for_analysis_count,relation_inside_buffer,relation_intersects_buffer_border,relation_outside_buffer,relation_border_unknown,fallback_no_selection_guard
+1,0,11,12,307.0,full,205.4968053672858,0.9516365495971628,False,sequence_variability_circle_fit:sigma=3.0:p=82.0,81,35,35,12,34,0,False
+2,6,17,12,311.0,full,143.12250334902808,0.8498437823868874,False,sequence_variability_circle_fit:sigma=3.0:p=82.0,81,16,16,8,57,0,False
+3,13,24,12,308.0,full,185.07530041849205,0.9407218137037592,False,sequence_variability_circle_fit:sigma=3.0:p=82.0,81,27,27,13,41,0,False
+4,19,30,12,309.0,full,172.41151447557112,0.9199124928376572,False,sequence_variability_circle_fit:sigma=3.0:p=82.0,81,23,23,11,47,0,False
+5,26,37,12,308.0,full,115.98670611738179,0.8339134254559701,False,sequence_variability_circle_fit:sigma=3.0:p=82.0,81,10,10,5,66,0,False
+6,32,43,12,307.0,full,117.2338447330326,0.8416066068655624,False,sequence_variability_circle_fit:sigma=3.0:p=82.0,81,10,10,7,64,0,False

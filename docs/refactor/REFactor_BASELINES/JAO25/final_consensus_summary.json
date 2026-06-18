@@ -1,0 +1,28 @@
+{
+  "final_consensus_definition": "accepted holes from probe 9, then border-refined locally",
+  "video": "JAO25.avi",
+  "wafer_circle": {
+    "cx": 660.770751953125,
+    "cy": 561.9188232421875,
+    "r": 307.48150634765625
+  },
+  "counts": {
+    "probe9_accepted_consensus": 74,
+    "probe9_provisional": 5,
+    "probe9_rejected": 7,
+    "final_border_refined_consensus": 74
+  },
+  "radii_px": {
+    "pre_refinement_common_radius": 13.0,
+    "loose_stage_median_radius": 15.0,
+    "final_fixed_common_radius": 15.0
+  },
+  "movement_px": {
+    "median_shift": 1.0,
+    "max_shift": 3.1622776601683795
+  },
+  "overflow_mask_margin_px": 8,
+  "border_objective": {
+    "description": "maximize composite gradient on the circular boundary with modest inside-vs-outside contrast support and small motion/radius penalties"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "status": "ok",
+  "new_artifact_family": "descriptors/radial_cluster",
+  "new_files": [
+    "radial_cluster_status.json",
+    "radial_cluster_palette.csv",
+    "radial_cluster_counts.csv",
+    "radial_cluster_pooled_fractions.csv",
+    "radial_cluster_front_metrics.csv",
+    "radial_cluster_dominant_map.csv",
+    "radial_cluster_front_trajectories.png",
+    "radial_cluster_dominant_map.png",
+    "radial_cluster_heatmap_cluster_<k>.png"
+  ],
+  "verification": {
+    "tests_passed": [
+      "holecolor/tests/test_wafer_nonhole_colour.py",
+      "holecolor/tests/test_pipeline_artifacts.py"
+    ]
+  },
+  "scope": "additive only; legacy radial path unchanged",
+  "limitations": [
+    "angle-residual branch not yet implemented"
+  ]
+}

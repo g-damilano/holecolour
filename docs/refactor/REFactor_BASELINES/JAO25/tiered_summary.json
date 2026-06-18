@@ -1,0 +1,20 @@
+{
+  "recommended_reporting_scheme": {
+    "conservative_final": "Tier 1 anchor holes only",
+    "extended_final": "Tier 1 anchor holes + Tier 2 strong grid-recovered holes"
+  },
+  "counts": {
+    "tier1_anchor": 74,
+    "tier2_recovered_strong": 7,
+    "weak_recovered_not_accepted": 2,
+    "still_missing": 3,
+    "conservative_final_total": 74,
+    "extended_final_total": 81
+  },
+  "wafer_circle": {
+    "cx": 660.770751953125,
+    "cy": 561.9188232421875,
+    "r": 307.48150634765625
+  },
+  "common_radius_reference_px": 15.0
+}

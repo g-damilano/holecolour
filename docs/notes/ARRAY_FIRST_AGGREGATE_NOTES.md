@@ -1,0 +1,1 @@
+Milestone 34 reduces first-run aggregate overhead further by replacing several bucket-building paths with sorted/groupby passes and accumulator-style summaries for sector RDF and hotspot uncertainty outputs.

@@ -1,0 +1,1 @@
+Windows terminals can render nested tqdm bars inconsistently. Milestone 49 disables the secondary stage bar by default on Windows and relies on stage start/completion plus heartbeat lines for liveness. Set HOLECOLOR_STAGE_BAR=1 to force the secondary stage bar if desired.

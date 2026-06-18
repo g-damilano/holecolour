@@ -1,0 +1,54 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Build and packaging outputs
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Local run outputs and generated analysis artifacts
+runs/
+local_outputs/
+holecolor_run/
+holecolor_radial_run/
+holecolor_color_only/
+holegrid_calibration/
+
+# Local/private data and large binary media
+data/videos/
+data/debug/
+archives/
+*.avi
+*.mp4
+*.wmv
+*.mov
+*.mkv
+*.tif
+*.tiff
+*.zip
+
+# Jupyter and editor state
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini

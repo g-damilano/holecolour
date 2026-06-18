@@ -1,0 +1,50 @@
+{
+  "actions_verified": [
+    "ACT-001",
+    "ACT-002",
+    "ACT-003"
+  ],
+  "pytest": {
+    "targets": [
+      "holecolor/tests/test_refactor_models.py",
+      "holecolor/tests/test_support_geometry.py",
+      "holecolor/tests/test_support_stage_smoke.py",
+      "holecolor/tests/test_milestone53.py"
+    ],
+    "result": "6 passed"
+  },
+  "partial_smoke": {
+    "run_path": "/mnt/data/_hc53_round2_smoke_run2",
+    "wafer_geometry_exists": true,
+    "buffer_geometry_exists": true,
+    "support_overlay_exists": true,
+    "latest_status": {
+      "timestamp_utc": "2026-03-17T14:17:46.379573+00:00",
+      "timestamp_local": "2026-03-17T14:17:46+00:00",
+      "event": "stage_heartbeat",
+      "stage": "Reference geometry",
+      "current": 1,
+      "total": 5,
+      "message": "Detecting candidates",
+      "elapsed_s": 20.134609352999973,
+      "elapsed_hms": "00:20",
+      "eta_s": 80.5384374119999,
+      "eta_hms": "01:21",
+      "stage_fraction": 0.2,
+      "overall_fraction": 0.2625,
+      "overall_eta_s": 83.00865237428552,
+      "overall_eta_hms": "01:23",
+      "run_elapsed_s": 29.54544707399998,
+      "run_elapsed_hms": "00:30",
+      "stage_index": 5,
+      "stages_total": 16,
+      "stage_started_utc": "2026-03-17T14:17:26.245026+00:00",
+      "stage_started_local": "2026-03-17T14:17:26+00:00"
+    },
+    "note": "The exact-sequence reference-geometry stage is computationally heavy on the sampled real-video smoke run. Verification for this round focused on support-stage artifact emission and targeted tests."
+  },
+  "baseline": {
+    "path": "refactor/REFactor_BASELINES/JAO25",
+    "exists": true
+  }
+}

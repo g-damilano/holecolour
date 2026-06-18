@@ -1,0 +1,17 @@
+{
+  "wafer_circle": {
+    "cx": 660.770751953125,
+    "cy": 561.9188232421875,
+    "r": 307.48150634765625
+  },
+  "common_radius_px": 15.0,
+  "counts": {
+    "anchor": 74,
+    "recovered_strong": 7,
+    "predicted_only_total": 19,
+    "predicted_only_full": 3,
+    "predicted_only_partial": 16,
+    "pattern_extended_total": 100
+  },
+  "note": "Predicted-only holes are grid-predicted positions not currently accepted by the detector."
+}

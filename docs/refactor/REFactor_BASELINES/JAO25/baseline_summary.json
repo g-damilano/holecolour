@@ -1,0 +1,24 @@
+{
+  "dataset": "JAO25",
+  "frozen_from": {
+    "probe10": "final consensus border-refined anchors",
+    "probe12": "tiered final conservative/extended split",
+    "probe13": "pattern-extended predicted-only split"
+  },
+  "counts": {
+    "conservative_final_total": 74,
+    "extended_final_total": 81,
+    "pattern_extended_total": 100,
+    "common_radius_px": 15.0
+  },
+  "artifacts": [
+    "conservative_overlay.png",
+    "extended_overlay_comparison.png",
+    "final_consensus_overlay.png",
+    "final_consensus_summary.json",
+    "pattern_extended_overlay.png",
+    "pattern_extended_summary.json",
+    "tiered_final_holes.csv",
+    "tiered_summary.json"
+  ]
+}

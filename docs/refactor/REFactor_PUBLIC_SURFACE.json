@@ -1,0 +1,75 @@
+{
+  "timestamp_utc": "2026-03-18T17:32:07Z",
+  "canonical_runtime_entrypoints": [
+    "run_milestone1",
+    "run_milestone16",
+    "run_milestone18"
+  ],
+  "preserved_legacy_aliases": {
+    "forward_to_milestone16": [
+      "run_milestone2",
+      "run_milestone3",
+      "run_milestone4",
+      "run_milestone7",
+      "run_milestone8",
+      "run_milestone9",
+      "run_milestone10",
+      "run_milestone11",
+      "run_milestone12",
+      "run_milestone13",
+      "run_milestone14",
+      "run_milestone15"
+    ],
+    "forward_to_milestone18": [
+      "run_milestone2",
+      "run_milestone3",
+      "run_milestone4",
+      "run_milestone7",
+      "run_milestone8",
+      "run_milestone9",
+      "run_milestone10",
+      "run_milestone11",
+      "run_milestone12",
+      "run_milestone13",
+      "run_milestone14",
+      "run_milestone15",
+      "run_milestone17",
+      "run_milestone19",
+      "run_milestone20",
+      "run_milestone21",
+      "run_milestone22",
+      "run_milestone23",
+      "run_milestone24"
+    ]
+  },
+  "compatibility_helpers": [
+    "_run_legacy_alias_to_milestone16",
+    "_run_legacy_alias_to_milestone18"
+  ],
+  "verified_stable_runtime_artifacts": [
+    "geometry/wafer_geometry.json",
+    "geometry/buffer_geometry.json",
+    "geometry/hole_tier_records.csv",
+    "geometry/hole_tier_records.json",
+    "geometry/hole_buffer_relations.csv",
+    "geometry/hole_buffer_relations.json",
+    "geometry/hole_selection_policy.json",
+    "descriptors/global_buffer_timeseries.csv",
+    "descriptors/global_buffer_region.json",
+    "descriptors/global_buffer_radial_profiles.csv",
+    "descriptors/global_buffer_band_profiles.csv",
+    "descriptors/coupled_hole_buffer_timeseries.csv",
+    "descriptors/coupled_hole_buffer_interpretation.csv",
+    "descriptors/coupled_hole_buffer_position_summary.csv",
+    "descriptors/coupled_hole_buffer_scientific_synthesis.csv"
+  ],
+  "deferred_items_not_in_public_surface_declaration": [
+    "cross-video validation claims",
+    "unverified future synthesis metrics"
+  ],
+  "policy": {
+    "public_milestone_names_preserved": true,
+    "alias_removal_performed": false,
+    "canonical_entrypoints_documented": true
+  }
+}

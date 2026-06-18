@@ -1,0 +1,38 @@
+{
+  "patch": "radial_cluster_average_hole",
+  "new_stage": "Radial cluster average hole",
+  "artifact_family": "descriptors/radial_cluster_average_hole/",
+  "new_primary_outputs": [
+    "average_hole_terrace_chronogram.png",
+    "terrace_XX_angular_chronogram.png",
+    "cluster_front_trajectories.png",
+    "hole_consistency_terrace_map.png"
+  ],
+  "supporting_tables": [
+    "hole_terrace_sector_cluster_tensor.csv",
+    "average_hole_terrace_cluster_fractions.csv",
+    "average_hole_terrace_summary.csv",
+    "terrace_angle_cluster_fractions.csv",
+    "terrace_angle_cluster_pooled.csv",
+    "cluster_front_metrics.csv",
+    "hole_consistency_by_terrace.csv"
+  ],
+  "changed_files": [
+    "holecolor/config/schema.py",
+    "holecolor/pipeline.py",
+    "holecolor/extensions/radial_cluster_average_hole.py",
+    "holecolor/tests/test_radial_cluster_average_hole.py",
+    "holecolor/tests/test_safe_modular_extensions.py",
+    "holecolor/tests/test_pipeline_artifacts.py"
+  ],
+  "verification": {
+    "focused_tests": [
+      "holecolor/tests/test_radial_cluster_average_hole.py",
+      "holecolor/tests/test_wafer_nonhole_colour.py",
+      "holecolor/tests/test_safe_modular_extensions.py",
+      "holecolor/tests/test_pipeline_artifacts.py",
+      "holecolor/tests/test_milestone24.py"
+    ],
+    "synthetic_smoke": true
+  }
+}

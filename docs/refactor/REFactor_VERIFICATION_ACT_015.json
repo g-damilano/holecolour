@@ -1,0 +1,22 @@
+{
+  "timestamp_utc": "2026-03-18T15:09:09Z",
+  "validation_mode": "multiwindow_support_geometry_vs_fixed_canonical_holes",
+  "summary": {
+    "timestamp_utc": "2026-03-18T14:59:58Z",
+    "video": "JAO25.avi",
+    "validation_mode": "multiwindow_support_geometry_vs_fixed_canonical_holes",
+    "frame_count": 44,
+    "windows_evaluated": 6,
+    "buffer_state_counts": {
+      "full": 6
+    },
+    "known_buffer_windows": 6,
+    "known_buffer_radius_mean_px": 156.55444574346524,
+    "known_buffer_radius_std_px": 33.745391251732244,
+    "buffer_confidence_mean": 0.8896057784744998,
+    "selected_for_analysis_mean": 20.166666666666668,
+    "windows_with_known_border_exclusions": 6
+  },
+  "pass": true,
+  "note": "Broader single-video validation complete; cross-video validation still pending."
+}

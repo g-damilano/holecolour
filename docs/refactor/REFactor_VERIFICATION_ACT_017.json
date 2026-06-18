@@ -1,0 +1,14 @@
+{
+  "timestamp_utc": "2026-03-18T15:34:27Z",
+  "status": "PASS",
+  "verified_files": [
+    "holecolor/pipeline.py",
+    "holecolor/tests/test_coupled_outputs.py",
+    "holecolor/tests/test_pipeline_artifacts.py"
+  ],
+  "verified_effects": [
+    "coupled rows propagate tier/source metadata",
+    "coupled interpretation summary table is emitted",
+    "focused regression suite passed"
+  ]
+}

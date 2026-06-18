@@ -1,0 +1,27 @@
+{
+  "autoDetect": true,
+  "softwareName": "auto",
+  "version": "auto",
+  "outputFolder": "software_packages",
+  "includePaths": [
+    "auto"
+  ],
+  "initialInputPaths": [
+    "auto"
+  ],
+  "excludeNames": [
+    "holecolor.egg-info"
+  ],
+  "excludeFileExtensions": [
+    ".npy"
+  ],
+  "excludePathGlobs": [
+    "JAO25",
+    "Media1",
+    "inv",
+    "invariance_output*",
+    "input",
+    "refactor/REFactor_BASELINES",
+    "refactor/REFactor_VALIDATION"
+  ]
+}

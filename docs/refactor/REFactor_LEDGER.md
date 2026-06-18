@@ -1,0 +1,373 @@
+# Refactor Ledger
+
+## ACT-000
+- Timestamp: 2026-03-17T14:06:15Z
+- Intent: Initialize persistent refactor-management layer inside the archive.
+- Scope:
+  - add `refactor/` governance files
+  - define milestones
+  - define target schema
+  - initialize live state
+  - initialize backlog and progress tracker
+- Files changed:
+  - `refactor/REFactor_MASTER_PLAN.md`
+  - `refactor/REFactor_TARGET_SCHEMA.md`
+  - `refactor/REFactor_STATE.json`
+  - `refactor/REFactor_LEDGER.md`
+  - `refactor/REFactor_DECISIONS.md`
+  - `refactor/REFactor_PROGRESS.md`
+  - `refactor/REFactor_BACKLOG.md`
+  - `refactor/REFactor_BASELINES/README.md`
+- Expected effect:
+  - the archive becomes self-documenting for the refactor
+  - future actions can be recorded and verified in-place
+- Observed effect:
+  - governance layer created successfully
+  - no runtime pipeline code changed in this action
+- Verification run:
+  - structural verification only
+  - checked that all governance files exist
+- Pass/fail: PASS
+- Regression summary:
+  - no code-path changes were made
+  - no runtime behavior changed
+- Rollback note:
+  - safe to remove `refactor/` directory if abandoning refactor governance
+
+
+## ACT-001
+- Timestamp: 2026-03-17T00:00:00Z
+- Intent: Freeze the current JAO25 smoke/reference baseline inside the archive.
+- Scope:
+  - create `refactor/REFactor_BASELINES/JAO25/`
+  - copy current conservative / extended / pattern-extended artifacts
+  - write `baseline_summary.json` and `smoke_manifest.json`
+- Files changed:
+  - `refactor/REFactor_BASELINES/JAO25/*`
+- Expected effect:
+  - current behavior becomes reproducible and comparable for all future refactor actions
+- Observed effect:
+  - baseline folder created successfully
+  - current known counts recorded: conservative=74, extended=81, pattern-extended=100
+- Verification run:
+  - structural verification: files exist in baseline folder
+  - behavioral verification: baseline JSON carries expected counts
+- Pass/fail: PASS
+- Regression summary:
+  - no runtime code path changed by this action
+- Rollback note:
+  - baseline folder can be removed only if a replacement baseline is recorded explicitly
+
+## ACT-002
+- Timestamp: 2026-03-17T00:00:00Z
+- Intent: Introduce formal geometry dataclasses for the target vector-structured architecture.
+- Scope:
+  - add `holecolor/geometry/models.py`
+  - define `WaferGeometry`, `BufferGeometry`, `HoleTierRecord`, and `HoleBufferRelation`
+- Files changed:
+  - `holecolor/geometry/models.py`
+  - `holecolor/tests/test_refactor_models.py`
+- Expected effect:
+  - geometry becomes serializable and explicit rather than remaining only implicit in masks and tables
+- Observed effect:
+  - geometry dataclasses added successfully
+  - JSON serialization methods available for scaffold stages
+- Verification run:
+  - pytest target for model serialization added and passed
+- Pass/fail: PASS
+- Regression summary:
+  - no existing runtime behavior removed
+- Rollback note:
+  - safe to remove the module if the target schema is redesigned
+
+## ACT-003
+- Timestamp: 2026-03-17T00:00:00Z
+- Intent: Add an explicit support-geometry stage scaffold to the main pipeline.
+- Scope:
+  - add `holecolor/geometry/support.py`
+  - emit `geometry/wafer_geometry.json`
+  - emit `geometry/buffer_geometry.json`
+  - emit `geometry/overlays/frame_ref_support_overlay.png`
+  - wire a `Support geometry` stage into `run_milestone18`
+- Files changed:
+  - `holecolor/geometry/support.py`
+  - `holecolor/pipeline.py`
+  - `holecolor/tests/test_support_geometry.py`
+- Expected effect:
+  - wafer geometry becomes an explicit pipeline output
+  - buffer geometry is represented honestly as `unknown` until the border estimator is implemented
+- Observed effect:
+  - support geometry stage wired successfully
+  - wafer geometry scaffold outputs available
+  - buffer geometry scaffold outputs available with `unknown` state
+- Verification run:
+  - pytest target for support geometry added and passed
+  - targeted stage smoke created support geometry artifacts before the long exact-detection step
+- Pass/fail: PASS
+- Regression summary:
+  - existing exact-sequence hole detection path preserved
+  - geometry stage still writes prior outputs
+- Rollback note:
+  - remove the support stage if a different support-geometry implementation supersedes it
+
+## ACT-003-VERIFY
+- Timestamp: 2026-03-17T14:20:30Z
+- Intent: Record explicit verification evidence for ACT-001 through ACT-003.
+- Scope:
+  - add verification report files under `refactor/`
+- Files changed:
+  - `refactor/REFactor_VERIFICATION_ACT_001_003.md`
+  - `refactor/REFactor_VERIFICATION_ACT_001_003.json`
+- Expected effect:
+  - verification evidence becomes co-located with the archive
+- Observed effect:
+  - pytest result and partial smoke artifact checks recorded successfully
+- Verification run:
+  - report creation only; underlying tests already executed
+- Pass/fail: PASS
+- Regression summary:
+  - no runtime code path changed by this action
+- Rollback note:
+  - reports can be regenerated when verification scope expands
+
+
+## ACT-004 to ACT-009
+- Timestamp: 2026-03-17T16:45:26Z
+- Intent: Complete the main formalization pass from tiered hole outputs through global/coupled scaffold analysis.
+- Scope:
+  - add `holecolor/geometry/relations.py`
+  - patch `holecolor/geometry/support.py` with a first partial-buffer estimator
+  - patch `holecolor/geometry/exact_sequence.py` to expose geometry class / predicted-only radius metadata
+  - patch `holecolor/pipeline.py` to emit formal tier records, hole-buffer relations, selection policy, global buffer timeseries, and coupled local/global scaffold outputs
+  - add focused verification tests
+- Files changed:
+  - `holecolor/geometry/support.py`
+  - `holecolor/geometry/relations.py`
+  - `holecolor/geometry/exact_sequence.py`
+  - `holecolor/pipeline.py`
+  - `holecolor/tests/test_support_geometry.py`
+  - `holecolor/tests/test_support_stage_smoke.py`
+  - `holecolor/tests/test_hole_buffer_relations.py`
+  - `holecolor/tests/test_global_buffer_scaffold.py`
+  - `holecolor/tests/test_pipeline_artifacts.py`
+- Expected effect:
+  - tiered hole logic becomes a formal archive artifact
+  - holes can be classified against explicit buffer geometry
+  - partial buffer border estimation exists in a first heuristic form
+  - pipeline emits first global/coupled scaffold outputs
+- Observed effect:
+  - `geometry/hole_tier_records.csv/.json` emitted
+  - `geometry/hole_buffer_relations.csv/.json` emitted
+  - `geometry/hole_selection_policy.json` emitted
+  - `descriptors/global_buffer_timeseries.csv` emitted
+  - `descriptors/global_buffer_region.json` emitted
+  - `descriptors/coupled_hole_buffer_timeseries.csv` emitted
+  - support stage now returns `BufferGeometry` as `full | partial | unknown`
+  - selection policy includes tiers 1/2/3 and excludes border intersections only when border is known
+- Verification run:
+  - see `refactor/REFactor_VERIFICATION_ACT_004_009.md`
+  - see `refactor/REFactor_VERIFICATION_ACT_004_009.json`
+- Pass/fail: PASS
+- Regression summary:
+  - focused tests passed
+  - targeted milestone3 smoke emitted the new geometry / global / coupled artifacts
+- Rollback note:
+  - revert to roundA archive if later broader smoke runs uncover regressions in the heavy full pipeline path
+
+
+## ACT-008
+- Timestamp: 2026-03-18T13:06:46Z
+- Intent: Add radial-from-buffer-border metrics and border-distance summaries to the global buffer branch.
+- Scope:
+  - patch `holecolor/pipeline.py`
+  - add `global_buffer_radial_profiles.csv`
+  - add distance-map helper functions for center and border profiles
+  - add focused tests for full/partial/unknown buffer geometry handling
+- Files changed:
+  - `holecolor/pipeline.py`
+  - `holecolor/tests/test_global_buffer_radial_profiles.py`
+  - `holecolor/tests/test_pipeline_artifacts.py`
+- Expected effect:
+  - the pipeline emits radial summaries as a function of distance from the buffer center and buffer border
+  - border profiles are only emitted when buffer geometry is known
+- Observed effect:
+  - `descriptors/global_buffer_radial_profiles.csv` is emitted by the main pipeline path
+  - center-axis profiles use `buffer_center_*` when buffer geometry is known and `wafer_center_proxy` otherwise
+  - border-axis profiles use `buffer_border_*` when buffer geometry is known and are skipped when border geometry is unavailable
+- Verification run:
+  - focused pytest targets including `test_global_buffer_radial_profiles.py` and `test_pipeline_artifacts.py`
+- Pass/fail: PASS
+- Regression summary:
+  - focused refactor/support/pipeline tests passed
+  - global buffer scaffold outputs preserved
+- Rollback note:
+  - remove the radial-profile helper/output path if the final global analysis contract changes
+
+## ACT-010
+- Timestamp: 2026-03-18T13:06:46Z
+- Intent: Validate border-aware hole exclusion on a known-border case.
+- Scope:
+  - extend `test_hole_buffer_relations.py` with a partial-border / off-frame center case
+- Files changed:
+  - `holecolor/tests/test_hole_buffer_relations.py`
+- Expected effect:
+  - prove that hole selection excludes only border-intersecting / outside holes when border geometry is known, including partial-border cases
+- Observed effect:
+  - focused relation test now covers a partial known border with center outside frame
+  - inside hole remains selected while intersecting/outside holes are excluded
+- Verification run:
+  - focused pytest targets including `test_hole_buffer_relations.py`
+- Pass/fail: PASS
+- Regression summary:
+  - selection-policy behavior remains unchanged on unknown-border cases
+- Rollback note:
+  - remove or adjust the partial-border validation case if relation semantics are redesigned
+
+## ACT-011 to ACT-014
+- Timestamp: 2026-03-18T14:30:50Z
+- Intent: Strengthen BufferGeometry estimation on edge cases, add vector-derived buffer masks/bands, normalize hotspot burden by explicit buffer area, and deepen coupled local/global scaffold outputs.
+- Scope:
+  - patch `holecolor/geometry/support.py`
+  - patch `holecolor/pipeline.py`
+  - update support / global-buffer / relation / artifact tests
+- Expected effect:
+  - avoid tiny false full-buffer fits
+  - expose vector-derived buffer border masks and inner bands
+  - emit band-level global buffer profiles
+  - carry hotspot fraction normalized by explicit buffer area
+  - enrich coupled rows with local-vs-global descriptor deltas
+- Observed effect:
+  - strengthened buffer estimator implemented
+  - `global_buffer_band_profiles.csv` and `buffer_border_mask.png` added
+  - `global_buffer_timeseries.csv` rows now include `hotspot_fraction_of_buffer_area`
+  - `coupled_hole_buffer_timeseries.csv` rows now include local/global descriptor deltas
+- Verification run:
+  - see `refactor/REFactor_VERIFICATION_ACT_011_014.md`
+- Pass/fail: PASS
+- Regression summary:
+  - 19 focused support/global-buffer/hole-buffer relation tests passed
+  - full milestone3 smoke not claimed in this action
+- Rollback note:
+  - revert to roundD archive if broader real-video validation exposes unstable BufferGeometry behavior
+
+## ACT-015
+- Timestamp: 2026-03-18T15:09:09Z
+- Intent: Broaden real-video validation for BufferGeometry and border-aware exclusion using multiple sampled windows from the available JAO25 video.
+- Scope:
+  - add repeatable validation script scaffold
+  - run multi-window support / buffer / hole-selection validation on JAO25
+  - freeze validation artifacts inside `refactor/REFactor_VALIDATION/ACT_015_JAO25_multiwindow/`
+  - update refactor state, progress, and backlog honestly
+- Expected effect:
+  - stronger evidence about BufferGeometry stability under varying windows
+  - clearer evidence about when border-aware exclusion is active vs `border_unknown`
+- Observed effect:
+  - validation completed across 6 windows
+  - buffer states observed: {'full': 6}
+  - known-border windows: 6
+  - windows with known border exclusions: 6
+- Verification run:
+  - focused regression confirmed previously stable support/global-buffer/hole-buffer tests on this workspace
+  - multi-window validation artifacts stored under `refactor/REFactor_VALIDATION/ACT_015_JAO25_multiwindow/`
+- Pass/fail: PASS
+- Regression summary:
+  - multi-window validation broadened within the available real video, but not across multiple distinct videos
+- Rollback note:
+  - revert to roundE if the broader validation artifacts are not wanted in the archive history
+## ACT-017
+- Timestamp: 2026-03-18T15:34:27Z
+- Intent: Deepen coupled local/global outputs from scaffold-level deltas into interpretation-level summary tables.
+- Scope:
+  - patch `holecolor/pipeline.py`
+  - add `holecolor/tests/test_coupled_outputs.py`
+  - extend `holecolor/tests/test_pipeline_artifacts.py`
+- Expected effect:
+  - coupled timeseries rows carry tier/source metadata and normalized local/global ratios
+  - pipeline emits a new interpretation summary table aggregating coupled behavior over time per hole/region
+- Observed effect:
+  - `descriptors/coupled_hole_buffer_interpretation.csv` is now written by the pipeline
+  - coupled rows now include `tier`, `source_class`, `visible_fraction`, `region_class`, and ratio fields
+  - interpretation rows summarize mean/median/peak deltas, hotspot-weighted delta, and early-vs-late change
+- Verification run:
+  - focused pytest set over support/global-buffer/hole-buffer/coupled/pipeline artifacts
+- Pass/fail: PASS
+- Regression summary:
+  - focused regression tests passed
+  - no claim made here about additional real-video validation beyond ACT-015
+- Rollback note:
+  - revert to roundF if the new coupled interpretation layer is not desired in the archive history
+
+## ACT-018
+- Timestamp: 2026-03-18T16:05:19Z
+- Intent: Reduce duplicated compatibility forwarding logic without changing the public milestone surface.
+- Scope:
+  - patch `holecolor/pipeline.py`
+  - add centralized legacy forwarding helpers
+  - add a consolidation audit under `refactor/`
+  - add focused alias-dispatch tests
+- Expected effect:
+  - fewer duplicated compatibility wrappers
+  - clearer distinction between canonical entrypoints and public legacy aliases
+- Observed effect:
+  - legacy wrappers now forward through shared helpers
+  - consolidation audit added to the archive
+  - focused alias-dispatch and regression tests passed
+- Verification run:
+  - see `refactor/REFactor_VERIFICATION_ACT_018.md`
+- Pass/fail: PASS
+- Regression summary:
+  - public wrapper names preserved
+  - support/global-buffer/hole-buffer regression set remained green
+- Rollback note:
+  - revert to roundG archive if the centralized forwarding helpers are not wanted
+
+## ACT-019
+- Timestamp: 2026-03-18T16:36:26Z
+- Intent: Add and verify a first narrative-level scientific synthesis layer on top of the coupled local/global branch.
+- Scope:
+  - patch `holecolor/pipeline.py`
+  - add `_coupled_position_class_summary_rows(...)`
+  - add `_coupled_scientific_synthesis_rows(...)`
+  - emit:
+    - `coupled_hole_buffer_position_summary.csv`
+    - `coupled_hole_buffer_scientific_synthesis.csv`
+- Expected effect:
+  - move coupled outputs from interpretation-ready tables toward a first narrative-level synthesis layer
+- Observed effect:
+  - synthesis artifacts were emitted by direct milestone3 smoke
+  - helper/grouped outputs are non-empty and persisted under the runtime descriptors folder
+- Verification run:
+  - direct synthetic milestone3 smoke from `_roundI_smoke_run`
+  - artifact-presence and row-count verification
+- Pass/fail: PASS
+- Regression summary:
+  - previously verified coupled outputs remained present
+  - scientific synthesis artifact added successfully
+- Rollback note:
+  - revert to roundI archive if the synthesis layer is not wanted in the stable runtime set
+
+## ACT-020
+- Timestamp: 2026-03-18T17:32:07Z
+- Intent: Freeze the final consolidation boundary and declare the preserved public surface.
+- Scope:
+  - add `refactor/REFactor_PUBLIC_SURFACE.md`
+  - add `refactor/REFactor_PUBLIC_SURFACE.json`
+  - add `refactor/REFactor_CONSOLIDATION_BOUNDARY_REVIEW.md`
+  - update refactor state, progress, backlog
+- Expected effect:
+  - archive explicitly states canonical entrypoints
+  - archive explicitly states which public aliases remain preserved
+  - archive explicitly states the verified stable runtime artifact set
+- Observed effect:
+  - public-surface declaration written
+  - consolidation boundary review written
+  - refactor memory updated to treat M6 as done
+- Verification run:
+  - code-presence / dispatch-structure audit
+  - focused alias dispatch test remains available from ACT-018
+- Pass/fail: PASS
+- Regression summary:
+  - no runtime code-path removals performed in this round
+  - public wrappers remain preserved
+- Rollback note:
+  - revert to roundJ archive if the frozen public-surface declaration should not yet be committed

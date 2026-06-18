@@ -1,0 +1,11 @@
+{
+  "timestamp_utc": "2026-03-18T16:36:26Z",
+  "verification_mode": "artifact_presence_and_row_counts",
+  "artifacts": {
+    "coupled_hole_buffer_timeseries.csv": 6360,
+    "coupled_hole_buffer_interpretation.csv": 318,
+    "coupled_hole_buffer_position_summary.csv": 9,
+    "coupled_hole_buffer_scientific_synthesis.csv": 9
+  },
+  "pass": true
+}

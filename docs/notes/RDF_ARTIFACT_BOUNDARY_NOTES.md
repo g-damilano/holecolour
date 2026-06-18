@@ -1,0 +1,1 @@
+Direct emission for per-hole RDF evolution/frame-summary/velocity artifacts now prefers internal column arrays for CSV writing and plot payload generation, while retaining row-based frame summaries only where needed downstream.

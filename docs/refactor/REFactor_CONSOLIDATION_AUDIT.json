@@ -1,0 +1,45 @@
+{
+  "legacy_alias_groups": {
+    "to_milestone16": [
+      "run_milestone2",
+      "run_milestone3",
+      "run_milestone4",
+      "run_milestone7",
+      "run_milestone8",
+      "run_milestone9",
+      "run_milestone10",
+      "run_milestone11",
+      "run_milestone12",
+      "run_milestone13",
+      "run_milestone14",
+      "run_milestone15"
+    ],
+    "to_milestone18": [
+      "run_milestone19",
+      "run_milestone20",
+      "run_milestone21",
+      "run_milestone22",
+      "run_milestone23",
+      "run_milestone24"
+    ]
+  },
+  "canonical_entrypoints": [
+    "run_milestone1",
+    "run_milestone16",
+    "run_milestone18"
+  ],
+  "transitional_helpers_added": [
+    "_run_legacy_alias_to_milestone16",
+    "_run_legacy_alias_to_milestone18"
+  ],
+  "safe_reductions_made": [
+    "centralized legacy alias forwarding logic",
+    "kept public milestone names stable",
+    "did not remove public wrappers or artifacts"
+  ],
+  "remaining_consolidation_targets": [
+    "document and eventually reduce milestone16->17->18 alias chain if safe",
+    "review duplicated artifact-writing boundaries",
+    "retire redundant public milestone aliases only when downstream callers are known"
+  ]
+}
