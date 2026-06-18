@@ -871,6 +871,74 @@ def _circle_center_outside_frame(shape: tuple[int, int], circle: tuple[int, int,
     return bool(float(cx) < 0.0 or float(cy) < 0.0 or float(cx) >= float(w) or float(cy) >= float(h))
 
 
+def _support_circle_has_visible_boundary(
+    mean_gray: np.ndarray,
+    reference_gray: np.ndarray,
+    circle: tuple[float, float, float] | tuple[int, int, int] | None,
+) -> bool:
+    if circle is None:
+        return False
+    h, w = mean_gray.shape
+    cx, cy, r = float(circle[0]), float(circle[1]), float(circle[2])
+    if r <= 1.0:
+        return False
+    delta = float(np.clip(0.018 * float(min(h, w)), 5.0, max(6.0, 0.055 * r)))
+    mean_scaled = _robust_scale(mean_gray)
+    ref_scaled = _robust_scale(reference_gray)
+    grad_scaled = _robust_scale(0.65 * _gradient_magnitude(mean_scaled) + 0.35 * _gradient_magnitude(ref_scaled))
+    n = max(160, min(960, int(round(2.0 * math.pi * r / max(delta, 1.0)))))
+    visible = 0
+    strong = 0
+    contrasts: list[float] = []
+    gradients: list[float] = []
+    for angle in np.linspace(0.0, 2.0 * math.pi, n, endpoint=False):
+        ca = float(math.cos(float(angle)))
+        sa = float(math.sin(float(angle)))
+        xb = cx + r * ca
+        yb = cy + r * sa
+        xi = cx + (r - delta) * ca
+        yi = cy + (r - delta) * sa
+        xo = cx + (r + delta) * ca
+        yo = cy + (r + delta) * sa
+        if not (
+            1.0 <= xi < w - 2
+            and 1.0 <= yi < h - 2
+            and 1.0 <= xo < w - 2
+            and 1.0 <= yo < h - 2
+            and 1.0 <= xb < w - 2
+            and 1.0 <= yb < h - 2
+        ):
+            continue
+        visible += 1
+        inside = 0.5 * (_bilinear_sample(mean_scaled, xi, yi) + _bilinear_sample(ref_scaled, xi, yi))
+        outside = 0.5 * (_bilinear_sample(mean_scaled, xo, yo) + _bilinear_sample(ref_scaled, xo, yo))
+        contrast = abs(outside - inside)
+        gradient = _bilinear_sample(grad_scaled, xb, yb)
+        contrasts.append(float(contrast))
+        gradients.append(float(gradient))
+        if (contrast >= 0.08 and gradient >= 0.08) or contrast >= 0.13 or gradient >= 0.18:
+            strong += 1
+    if visible < max(18, int(0.04 * n)):
+        return False
+    contrast_arr = np.asarray(contrasts, dtype=np.float32)
+    grad_arr = np.asarray(gradients, dtype=np.float32)
+    visible_fraction = float(visible / max(n, 1))
+    supported_arc_fraction = visible_fraction * float(strong / max(visible, 1))
+    rim_score = _rim_model_score_from_maps(mean_scaled, ref_scaled, grad_scaled, (cx, cy, r), delta)
+    background_similarity = _background_similarity_map(mean_gray, reference_gray)
+    if background_similarity is not None:
+        background_transition = _circle_background_transition_score(background_similarity, (cx, cy, r), delta)
+        return bool(supported_arc_fraction >= 0.025 and background_transition >= 0.035)
+    return bool(
+        supported_arc_fraction >= 0.080
+        and rim_score >= 0.100
+        and (
+            float(np.percentile(contrast_arr, 75)) >= 0.16
+            or float(np.percentile(grad_arr, 75)) >= 0.24
+        )
+    )
+
+
 def _detect_support_from_sequence(gray_stack: np.ndarray):
     mean_gray = gray_stack.mean(axis=0).astype(np.float32)
     median_gray = np.median(gray_stack, axis=0).astype(np.float32)
@@ -881,12 +949,15 @@ def _detect_support_from_sequence(gray_stack: np.ndarray):
     dark_support = _detect_dark_support_from_mean(mean_gray)
     if dark_support is not None:
         support_circle, wafer_mask = dark_support
-        return support_circle, wafer_mask, mean_gray, std_gray, mad_gray
+        if _support_circle_has_visible_boundary(mean_gray, median_gray, support_circle):
+            return support_circle, wafer_mask, mean_gray, std_gray, mad_gray
 
     rectangular_content = _detect_rectangular_valid_content_support_from_mean(mean_gray)
     if rectangular_content is not None:
         support_circle, wafer_mask = rectangular_content
-        return support_circle, wafer_mask, mean_gray, std_gray, mad_gray
+        if _support_circle_has_visible_boundary(mean_gray, median_gray, support_circle):
+            return support_circle, wafer_mask, mean_gray, std_gray, mad_gray
+        return None, np.ones_like(mean_gray, dtype=bool), mean_gray, std_gray, mad_gray
 
     border = max(8, min(H, W) // 20)
     border_mask = np.zeros((H, W), dtype=bool)
@@ -922,14 +993,18 @@ def _detect_support_from_sequence(gray_stack: np.ndarray):
             return None, np.ones_like(mean_gray, dtype=bool), mean_gray, std_gray, mad_gray
         wafer_mask = (((xx - xc) ** 2 + (yy - yc) ** 2) <= (1.03 * r) ** 2) | comp_mask
         support_circle = (int(round(xc)), int(round(yc)), int(round(r)))
-        return support_circle, wafer_mask, mean_gray, std_gray, mad_gray
+        if _support_circle_has_visible_boundary(mean_gray, median_gray, support_circle):
+            return support_circle, wafer_mask, mean_gray, std_gray, mad_gray
+        return None, np.ones_like(mean_gray, dtype=bool), mean_gray, std_gray, mad_gray
     cnt = max(contours, key=cv2.contourArea)
     (xc, yc), r = cv2.minEnclosingCircle(cnt)
     if r < 0.28 * min(H, W):
         return None, np.ones_like(mean_gray, dtype=bool), mean_gray, std_gray, mad_gray
     wafer_mask = ((xx - xc) ** 2 + (yy - yc) ** 2) <= (0.985 * r) ** 2
     support_circle = (int(round(xc)), int(round(yc)), int(round(r)))
-    return support_circle, wafer_mask, mean_gray, std_gray, mad_gray
+    if _support_circle_has_visible_boundary(mean_gray, median_gray, support_circle):
+        return support_circle, wafer_mask, mean_gray, std_gray, mad_gray
+    return None, np.ones_like(mean_gray, dtype=bool), mean_gray, std_gray, mad_gray
 
 
 def _evidence_sigma_values(shape: tuple[int, int], cfg: GeometryConfig | None) -> list[float]:

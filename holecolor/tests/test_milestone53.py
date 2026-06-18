@@ -16,6 +16,7 @@ from holecolor.geometry.exact_sequence import (
     _circle_background_transition_score,
     _circle_mask,
     _DetectorWatchdog,
+    _detect_support_from_sequence,
     _fine_refine_circle_from_visible_rim,
     _gradient_magnitude,
     _homogeneous_midpoint_order,
@@ -23,6 +24,8 @@ from holecolor.geometry.exact_sequence import (
     _representative_sequence_indices,
     _robust_scale,
     _scale_detection_result,
+    _sequence_gray_stack,
+    _support_circle_has_visible_boundary,
     _wafer_circle_model_score,
     DetectorWatchdogTimeout,
     detect_exact_wafer_holes_sequence_full,
@@ -214,6 +217,31 @@ def test_milestone53_exact_sequence_fits_partial_support_with_center_outside_fra
     assert result.debug.anchor_count >= 10
     assert result.debug.completed_count == len(result.accepted_candidates)
     assert len(result.accepted_candidates) >= 16
+
+
+def test_milestone53_support_boundary_verifier_accepts_visible_wafer_border():
+    h, w = 180, 220
+    cx, cy, r = 110, 90, 55
+    yy, xx = np.indices((h, w))
+    mean_gray = np.full((h, w), 190, dtype=np.float32)
+    wafer = ((xx - cx) ** 2 + (yy - cy) ** 2) <= r * r
+    mean_gray[wafer] = 72
+
+    assert _support_circle_has_visible_boundary(mean_gray, mean_gray, (cx, cy, r))
+
+
+def test_milestone53_support_detection_falls_back_when_no_visible_wafer_border():
+    h, w = 160, 240
+    base = np.zeros((h, w), dtype=np.uint8)
+    base[20:140, :] = 80
+    for x in range(w):
+        base[20:140, x] = np.clip(int(base[80, x]) + (x % 17) - 8, 0, 255)
+    frames = [np.repeat(base[:, :, None], 3, axis=2).astype(np.uint8) for _ in range(4)]
+
+    support_circle, wafer_mask, *_ = _detect_support_from_sequence(_sequence_gray_stack(frames))
+
+    assert support_circle is None
+    assert bool(np.all(wafer_mask))
 
 
 def test_milestone53_wafer_circle_score_rejects_background_swallowing_circle():
