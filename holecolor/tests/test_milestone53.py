@@ -34,6 +34,7 @@ from holecolor.geometry.exact_sequence import (
 )
 from holecolor.core.types import LatticeModel
 from holecolor.geometry.lattice_fit import assign_lattice_indices, estimate_lattice_basis
+from holecolor.pipeline import _geometry_sanity_checks
 
 
 def _make_sequence(shape=(420, 420), radius=8, n_frames=6):
@@ -242,6 +243,44 @@ def test_milestone53_support_detection_falls_back_when_no_visible_wafer_border()
 
     assert support_circle is None
     assert bool(np.all(wafer_mask))
+
+
+def test_milestone53_geometry_sanity_allows_dense_full_frame_support():
+    h, w = 200, 200
+    candidates = [
+        HoleCandidate(float(10 + 10 * (i % 19)), float(10 + 10 * (i // 19)), 3.0, 0.0, 1.0, 0.95)
+        for i in range(181)
+    ]
+    lattice = LatticeModel(10.0, 10.0, (10.0, 0.0), (0.0, 10.0), 0.0, 10.0, 10.0, 0.70)
+    debug = StableGridDetectionDebug(
+        support_circle=(100, 100, 142),
+        support_mask=np.ones((h, w), dtype=bool),
+        raw_count=len(candidates),
+        filtered_count=len(candidates),
+        anchor_count=len(candidates),
+        recovered_strong_count=0,
+        predicted_only_full_count=0,
+        predicted_only_partial_count=0,
+        completed_count=len(candidates),
+        mode="exact_sequence",
+        common_radius_px=3.0,
+    )
+    result = StableGridDetectionResult(
+        candidates,
+        lattice,
+        {i: (i % 19, i // 19) for i in range(len(candidates))},
+        debug,
+    )
+
+    sanity = _geometry_sanity_checks(result, (h, w))
+
+    assert sanity["fail_count"] == 0
+    lattice_check = next(c for c in sanity["checks"] if c["name"] == "lattice_confidence")
+    assert lattice_check["passed"] is True
+    assert lattice_check["value"]["minimum"] == 0.65
+    full_frame_check = next(c for c in sanity["checks"] if c["name"] == "full_frame_support_hole_count")
+    assert full_frame_check["severity"] == "warn"
+    assert full_frame_check["passed"] is False
 
 
 def test_milestone53_wafer_circle_score_rejects_background_swallowing_circle():

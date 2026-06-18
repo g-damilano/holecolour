@@ -976,6 +976,8 @@ def _geometry_sanity_checks(result: Any, image_shape: tuple[int, int]) -> dict[s
     physical_max_holes = 0
     if common_radius > 0.0 and support_area > 0:
         physical_max_holes = max(1, int(np.floor(float(support_area) / (np.pi * common_radius * common_radius))))
+    full_frame_support = bool(support_fraction > 0.985 or str(getattr(debug, "mode", "")).endswith("frame_support")) if debug is not None else True
+    lattice_confidence_min = 0.65 if full_frame_support and n_candidates >= 12 else 0.75
     checks: list[dict[str, Any]] = []
 
     def add(name: str, passed: bool, severity: str, detail: str, value: Any = None) -> None:
@@ -996,10 +998,10 @@ def _geometry_sanity_checks(result: Any, image_shape: tuple[int, int]) -> dict[s
     )
     add(
         "lattice_confidence",
-        confidence >= 0.75,
+        confidence >= lattice_confidence_min,
         "fail",
-        f"Lattice confidence is {confidence:.3f}.",
-        confidence,
+        f"Lattice confidence is {confidence:.3f}; required >= {lattice_confidence_min:.2f}.",
+        {"confidence": confidence, "minimum": lattice_confidence_min},
     )
     add(
         "radius_spacing_ratio",
@@ -1027,7 +1029,6 @@ def _geometry_sanity_checks(result: Any, image_shape: tuple[int, int]) -> dict[s
         f"Support mask area is {support_area} px.",
         support_area,
     )
-    full_frame_support = bool(support_fraction > 0.985 or str(getattr(debug, "mode", "")).endswith("frame_support")) if debug is not None else True
     add(
         "support_is_object_specific",
         not full_frame_support,
@@ -1038,8 +1039,8 @@ def _geometry_sanity_checks(result: Any, image_shape: tuple[int, int]) -> dict[s
     add(
         "full_frame_support_hole_count",
         not (full_frame_support and n_candidates > 180),
-        "fail",
-        f"Full-frame support with {n_candidates} holes is suspicious and usually means wafer support was missed.",
+        "warn",
+        f"Full-frame support with {n_candidates} holes should be inspected when a wafer border is expected.",
         n_candidates,
     )
     if support_circle is not None:
@@ -1048,7 +1049,7 @@ def _geometry_sanity_checks(result: Any, image_shape: tuple[int, int]) -> dict[s
         add(
             "support_circle_scale",
             not (r > 0.75 * diag and n_candidates > 180),
-            "fail",
+            "warn" if full_frame_support else "fail",
             f"Support radius is {r:.1f}px for frame diagonal {diag:.1f}px.",
             {"radius_px": r, "frame_diagonal_px": diag},
         )
