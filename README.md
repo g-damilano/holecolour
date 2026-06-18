@@ -206,13 +206,42 @@ Recommended review order:
 
 ## Jupyter Usage
 
-You can run the CLI from a notebook cell:
+You can clone the public repository directly inside a Jupyter notebook or JupyterLab terminal:
+
+```python
+!git clone https://github.com/g-damilano/holecolour.git
+%cd holecolour
+!python -m pip install --upgrade pip
+!python -m pip install -e .
+```
+
+Confirm the CLI is available:
+
+```python
+!python -m holecolor.cli --help
+```
+
+The repository does not include raw videos. Upload or copy your analysis videos into `data/videos/` in the notebook environment before running the pipeline:
+
+```python
+from pathlib import Path
+
+Path("data/videos").mkdir(parents=True, exist_ok=True)
+```
+
+Then run the CLI from a notebook cell:
 
 ```python
 !python -m holecolor.cli run "data/videos/JAO25_center_75_percent.mp4" --out "local_outputs/runs/notebook_run" --fast --workers 4
 ```
 
-Or call the CLI entrypoint from Python:
+For a final full run, remove `--fast`:
+
+```python
+!python -m holecolor.cli run "data/videos/JAO25_center_75_percent.mp4" --out "local_outputs/runs/notebook_full" --workers 4
+```
+
+You can also call the CLI entrypoint from Python:
 
 ```python
 import sys
@@ -230,7 +259,7 @@ sys.argv = [
 main()
 ```
 
-The shell-style notebook command is usually closest to command-line behavior.
+The shell-style notebook command is usually closest to command-line behavior and is the recommended notebook workflow.
 
 ## Development
 
